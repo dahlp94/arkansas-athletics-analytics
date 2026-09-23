@@ -3,7 +3,9 @@ from pathlib import Path
 import re
 import pdfplumber
 
-PDF_PATH = Path("data/raw/2025_01_alabama_am.pdf")
+#PDF_PATH = Path("data/raw/2025_01_alabama_am.pdf")
+#PDF_PATH = Path("data/raw/2025_02_arkansas_state.pdf")
+PDF_PATH = Path("data/raw/2025_03_ole_miss.pdf")
 
 with pdfplumber.open(PDF_PATH) as pdf:
     text = pdf.pages[0].extract_text()
@@ -17,8 +19,18 @@ stadium = re.search(r"Stadium:\s*(.+)", text).group(1).strip()
 attendance = int(re.search(r"Attendance:\s*(\d+)", text).group(1))
 kickoff = re.search(r"Kickoff time:\s*(.+)", text).group(1).strip()
 
-# Opponent
-opponent = re.search(r"^(.+?) vs Arkansas \(", text, re.MULTILINE).group(1)
+# Opponent and location
+home_match = re.search(r"^(.+?) vs Arkansas \(", text, re.MULTILINE)
+away_match = re.search(r"^Arkansas vs (.+?) \(", text, re.MULTILINE)
+
+if home_match:
+    opponent = home_match.group(1)
+    location_type = "HOME"
+elif away_match:
+    opponent = away_match.group(1)
+    location_type = "AWAY"
+else:
+    raise ValueError("Could not find opponent")
 
 # Scores
 arkansas_score = None
@@ -47,7 +59,7 @@ game = {
     "season": game_date.year,
     "game_date": game_date.strftime("%Y-%m-%d"),
     "opponent": opponent,
-    "location_type": "HOME",
+    "location_type": location_type,
     "arkansas_score": arkansas_score,
     "opponent_score": opponent_score,
     "result": result,
