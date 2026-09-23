@@ -2,7 +2,7 @@ from datetime import datetime
 from io import BytesIO
 import re
 from urllib.parse import urljoin
-
+import pandas as pd
 import pdfplumber
 import requests
 from bs4 import BeautifulSoup
@@ -110,7 +110,17 @@ for pdf_url in pdf_urls:
     game = parse_game(pdf_url)
     games.append(game)
 
-for game in games:
-    print(game)
 
-print(f"\nGames parsed: {len(games)}")
+# Basic validation
+assert len(games) == 12
+assert len({(game["game_date"], game["opponent"]) for game in games}) == 12
+assert all(game["attendance"] > 0 for game in games)
+
+df = pd.DataFrame(games)
+
+output_path = "data/processed/football_games_2025.csv"
+df.to_csv(output_path, index=False)
+
+print(df)
+print(f"\nGames written: {len(df)}")
+print(f"Saved to: {output_path}")
