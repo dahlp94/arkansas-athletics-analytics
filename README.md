@@ -64,7 +64,7 @@ The processed dataset contains 12 games from the 2025 Arkansas football season.
 - Generated a clean 12-row CSV with pandas
 - Loaded the processed dataset into Snowflake
 - Added SQL checks for row counts, duplicate games, and invalid attendance values
-- Created a reporting-ready Snowflake view with calculated score margin
+- Created a reporting-ready Snowflake view with score-margin, venue-context, and attendance-benchmarking fields
 - Connected Tableau directly to the Snowflake analytical view
 - Built a one-page attendance dashboard for the complete 2025 season
 
@@ -86,7 +86,7 @@ The base table is:
 
 ```text
 ARKANSAS_ATHLETICS.ANALYTICS.FOOTBALL_GAMES
-```
+````
 
 The Tableau reporting view is:
 
@@ -94,11 +94,15 @@ The Tableau reporting view is:
 ARKANSAS_ATHLETICS.ANALYTICS.V_FOOTBALL_ATTENDANCE
 ```
 
-The view exposes the reporting fields needed by Tableau and calculates:
+The view exposes the reporting fields needed by Tableau and adds analytical features for:
 
-```sql
-arkansas_score - opponent_score AS score_margin
-```
+* Score margin
+* Absolute score margin
+* Venue context: Fayetteville, Little Rock, or Away
+* Score-margin bands
+* Attendance relative to the Fayetteville average
+
+These fields support deeper attendance analysis without changing the underlying data pipeline.
 
 ## Dashboard
 
@@ -109,13 +113,24 @@ arkansas_score - opponent_score AS score_margin
 The Tableau dashboard summarizes the full 2025 season with:
 
 - 12 total games
-- 73,518 average attendance
+- 73,518 overall average attendance
 - 102,361 highest attendance
-- 67,542 average home attendance
+- 69,762 average Fayetteville attendance
 - Attendance by game
-- Attendance by opponent
-- Home vs. away average attendance
-- Game-level details including scores, results, stadiums, and attendance
+- Attendance by venue context
+- Attendance versus absolute score margin
+- Fayetteville attendance relative to the Fayetteville average
+- Game-level details including venue, scores, results, and attendance
+
+## Analysis Findings
+
+- Fayetteville averaged 69,762 attendees across six games.
+- Notre Dame had the largest positive deviation from the Fayetteville average at +5,349, followed by Texas A&M at +4,083.
+- Missouri had the largest negative deviation from the Fayetteville average at -8,254.
+- Away games averaged 81,883 attendees, reflecting Arkansas playing several games in large-capacity road venues.
+- Attendance did not show a clear descriptive relationship with final score margin across the 12-game season.
+
+Because the dataset contains only one season and 12 games, these findings are descriptive rather than causal.
 
 ## Project Structure
 
@@ -176,7 +191,7 @@ analytics.sql
 
 ## Current Status
 
-**v0.1 complete.**
+**v0.2 complete.**
 
 The full pipeline is working end to end:
 
