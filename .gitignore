@@ -9,3 +9,6 @@ data/raw/*
 
 data/processed/*
 !data/processed/.gitkeep
+
+# Tableau temporary/recovery files
+*.twbr
